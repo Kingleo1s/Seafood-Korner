@@ -1,0 +1,22 @@
+[
+  {
+    "model": "restaurant.category",
+    "pk": 1,
+    "fields": {"name": "Starters"}
+  },
+  {
+    "model": "restaurant.category",
+    "pk": 2,
+    "fields": {"name": "Main Dishes"}
+  },
+  {
+    "model": "restaurant.menuitem",
+    "pk": 1,
+    "fields": {
+      "name": "Grilled Tilapia",
+      "description": "Fresh tilapia grilled with spices",
+      "price": "3500.00",
+      "category": 2
+    }
+  }
+]

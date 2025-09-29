@@ -1,22 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Seafood Korner</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Seafood Korner</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <h1>Welcome to Seafood Korner</h1>
-  <div class="menu">
-    {% for item in menu_items %}
-      <div class="menu-item">
-        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-        <h2>{{ item.name }}</h2>
-        <p>{{ item.description }}</p>
-        <span>₦{{ item.price }}</span>
-      </div>
-    {% endfor %}
-  </div>
-  <script src="{% static 'js/script.js' %}"></script>
+    <header>
+        <h1>🐟 Welcome to Seafood Korner 🦐</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="/api/menu/">Menu API</a> |
+            <a href="/admin/">Admin</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Our Menu</h2>
+        <div class="menu-items">
+            {% for item in items %}
+                <div class="menu-card">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    {% endif %}
+                    <h3>{{ item.name }}</h3>
+                    <p>{{ item.description }}</p>
+                    <p><strong>₦{{ item.price }}</strong></p>
+                    <p><em>Category: {{ item.category.name }}</em></p>
+                </div>
+            {% empty %}
+                <p>No menu items available yet.</p>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Seafood Korner. Fresh from the ocean daily 🐠</p>
+    </footer>
 </body>
 </html>
