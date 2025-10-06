@@ -87,7 +87,7 @@ nav a:hover {
 }
 
 .story-image img {
-    width: 100%;
+    width: 50%;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
@@ -169,7 +169,7 @@ nav a:hover {
 }
 
 .cta img {
-    max-width: 400px;
+    max-width: 200px;
     width: 100%;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -180,4 +180,26 @@ footer {
     background: #03045e;
     color: white;
     text-align: center;
-    paddi
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+.filter-buttons {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.filter-buttons button {
+    background: #0077b6;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    margin: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.filter-buttons button:hover {
+    background: #005f87;
+}

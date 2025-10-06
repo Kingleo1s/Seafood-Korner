@@ -2,21 +2,67 @@
   {
     "model": "restaurant.category",
     "pk": 1,
-    "fields": {"name": "Starters"}
+    "fields": {
+      "name": "Fish"
+    }
   },
   {
     "model": "restaurant.category",
     "pk": 2,
-    "fields": {"name": "Main Dishes"}
+    "fields": {
+      "name": "Prawns"
+    }
   },
+  {
+    "model": "restaurant.category",
+    "pk": 3,
+    "fields": {
+      "name": "Meat"
+    }
+  },
+
   {
     "model": "restaurant.menuitem",
     "pk": 1,
     "fields": {
       "name": "Grilled Tilapia",
-      "description": "Fresh tilapia grilled with spices",
-      "price": "3500.00",
+      "description": "Freshly grilled tilapia with herbs and lemon.",
+      "price": "2500.00",
+      "image": "",
+      "category": 1
+    }
+  },
+  {
+    "model": "restaurant.menuitem",
+    "pk": 2,
+    "fields": {
+      "name": "Fried Catfish",
+      "description": "Crispy golden catfish served with spicy sauce.",
+      "price": "3000.00",
+      "image": "",
+      "category": 1
+    }
+  },
+  {
+    "model": "restaurant.menuitem",
+    "pk": 3,
+    "fields": {
+      "name": "Garlic Butter Prawns",
+      "description": "Juicy prawns sautéed in garlic butter sauce.",
+      "price": "35000.00",
+      "image": "",
       "category": 2
+    }
+  },
+  {
+    "model": "restaurant.menuitem",
+    "pk": 4,
+    "fields": {
+      "name": "Pepper Soup Goat Meat",
+      "description": "Traditional Nigerian goat meat pepper soup.",
+      "price": "40000.00",
+      "image": "",
+      "category": 3
     }
   }
 ]
