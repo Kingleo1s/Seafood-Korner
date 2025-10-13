@@ -8,11 +8,28 @@ from .serializers import (
 )
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Cart, CartItem
+from .serializers import CartSerializer, CartItemSerializer
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
-def menu(request):
-    items = MenuItem.objects.all()
-    return render(request, "restaurant/menu.html", {"menu_items": items})
+def home_view(request):
+    items = MenuItem.objects.select_related("category").all()
+    return render(request, "restaurant/index.html", {"items": items})
+
+@csrf_exempt
+def menu_page(request):
+    """Displays all menu items and handles AJAX cart additions."""
+    items = MenuItem.objects.select_related("category").all()
+    return render(request, "restaurant/menu.html", {"items": items})
+
+
 
 
 
@@ -26,8 +43,8 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["category", "price"]  # filter by category or price
-    search_fields = ["name", "description"]  # search by name or description
+    filterset_fields = ["category", "price"]
+    search_fields = ["name", "description"]
     ordering_fields = ["price", "name"]
 
     def get_permissions(self):
@@ -57,4 +74,48 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
 
 
+class CartViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
+    def list(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    def create(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        menu_item_id = request.data.get("menu_item")
+        quantity = request.data.get("quantity", 1)
+
+        menu_item = MenuItem.objects.get(id=menu_item_id)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, menu_item=menu_item)
+
+        if not created:
+            cart_item.quantity += int(quantity)
+        cart_item.save()
+
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+@login_required
+def add_to_cart(request):
+
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        menu_item = get_object_or_404(MenuItem, id=item_id)
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, menu_item=menu_item)
+
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+
+        return JsonResponse({
+            "message": f"{menu_item.name} added to cart",
+            "quantity": cart_item.quantity
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)

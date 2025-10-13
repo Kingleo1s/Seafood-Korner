@@ -1,5 +1,5 @@
 """
-URL configuration for seafood_korner project.
+URL configuration for a seafood_korner project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -19,23 +19,38 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from restaurant.views import menu, CategoryViewSet, MenuItemViewSet, OrderViewSet, UserViewSet
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
+from restaurant import views
+from restaurant.views import (
+    home_view,
+    CategoryViewSet,
+    MenuItemViewSet,
+    OrderViewSet,
+    UserViewSet,
+    CartViewSet,
+    add_to_cart,
 )
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-# ✅ Define router before urlpatterns
 router = DefaultRouter()
 router.register("categories", CategoryViewSet)
 router.register("menu", MenuItemViewSet)
 router.register("orders", OrderViewSet, basename="orders")
 router.register("users", UserViewSet)
+router.register("cart", CartViewSet, basename="cart")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", menu, name="menu"),  # Home menu view
-    path("api/", include(router.urls)),  # API endpoints
+
+    # HTML pages
+    path("", home_view, name="home"),
+    path("menu/", views.menu_page, name="menu"),
+    path("add-to-cart/", add_to_cart, name="add_to_cart"),
+
+    # API endpoints
+    path("api/", include(router.urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,111 +3,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Seafood Korner</title>
+    <title>Our Menu | Seafood Korner</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <h1>🐟 Welcome to Seafood Korner 🦐</h1>
-        <nav>
-            <a href="/">Home</a> |
-            <a href="/api/menu/">Menu API</a> |
-            <a href="/admin/">Admin</a>
-        </nav>
-    </header>
+<header>
+    <h1>Seafood Korner Menu</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/menu/">Menu</a> |
+        <a href="/cart/">Cart</a>
+    </nav>
+</header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <p class="quote">
-            "The discovery of a new dish does more for the happiness of mankind than the discovery of a star."
-        </p>
-        <span class="author">— Anthelme Brillat-Savarin</span>
-    </section>
+<main>
+    <h2>Available Dishes</h2>
+    <div class="menu-container">
+        {% for item in items %}
+            <div class="menu-card">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                {% endif %}
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.description }}</p>
+                <p><strong>₦{{ item.price }}</strong></p>
+                <button class="add-to-cart-btn" data-id="{{ item.id }}">🛒 Add to Cart</button>
+                <span id="count-{{ item.id }}" class="item-count">0</span>
+            </div>
+        {% empty %}
+            <p>No menu items yet.</p>
+        {% endfor %}
+    </div>
+</main>
 
-    <!-- Story Section -->
-    <section class="story">
-        <div class="story-text">
-            <h2>Our Story</h2>
-            <p>
-                At Seafood Korner, we believe in serving only the freshest catch from the ocean. 
-                Our meals are crafted with love, spice, and a touch of tradition.
-            </p>
-            <ul>
-                <li>🍽 Fine Dining</li>
-                <li>🚚 Food Delivery</li>
-                <li>🥂 Food Catering</li>
-                <li>💍 Wedding Ceremony</li>
-            </ul>
-            <a href="#" class="btn">Learn More</a>
-        </div>
-        <div class="story-image">
-            <img src="{% static 'images/sea2.jpg' %}" alt="Seafood Dish">
-        </div>
-    </section>
+<footer>
+    <p>© 2025 Seafood Korner — Fresh Taste, Every Day</p>
+</footer>
 
-    <!-- Specials Section -->
-    <section class="specials">
-        <h2>This Week's Specials</h2>
-        <div class="menu-items">
-            {% for item in items %}
-                <div class="menu-card">
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    {% endif %}
-                    <h3>{{ item.name }}</h3>
-                    <p>{{ item.description }}</p>
-                    <p><strong>₦{{ item.price }}</strong></p>
-                    <p><em>Category: {{ item.category.name }}</em></p>
-                </div>
-           {% empty %}
-                <p>No specials available this week.</p>
-            {% endfor %}
-        </div>
-    </section>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const buttons = document.querySelectorAll(".add-to-cart-btn");
 
-    <!-- Full Menu with Filters -->
-    <main>
-        <h2>Our Menu</h2>
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const itemId = btn.dataset.id;
 
-        <!-- Filter Buttons -->
-        <div class="filter-buttons">
-            <button onclick="filterMenu('all')">All</button>
-            <button onclick="filterMenu('Fish')">Fish</button>
-            <button onclick="filterMenu('Prawns')">Prawns</button>
-            <button onclick="filterMenu('Lobsters')">Lobsters</button>
-        </div>
+            fetch("{% url 'add_to_cart' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: `item_id=${itemId}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.quantity !== undefined) {
+                    document.getElementById(`count-${itemId}`).textContent = data.quantity;
+                }
+                alert(data.message || data.error);
+            })
+            .catch(err => console.error("Error:", err));
+        });
+    });
+});
+</script>
 
-        <!-- Dynamic Menu Items -->
-        <div class="menu-items">
-            {% for item in items %}
-                <div class="menu-card" data-category="{{ item.category.name }}">
-                    {% if item.image %}
-                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
-                    {% endif %}
-                    <h3>{{ item.name }}</h3>
-                    <p>{{ item.description }}</p>
-                    <p><strong>₦{{ item.price }}</strong></p>
-                    <p><em>Category: {{ item.category.name }}</em></p>
-                </div>
-            {% empty %}
-                <p>No menu items available yet.</p>
-            {% endfor %}
-        </div>
-    </main>
-
-    <!-- CTA Section -->
-    <section class="cta">
-        <h2>Best Quality Foods</h2>
-        <img src="{% static 'images/sea6.jpg' %}" alt="Quality Food">
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>© 2025 Seafood Korner. Fresh from the ocean daily 🐠</p>
-    </footer>
-
-    <!-- JavaScript -->
-    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
