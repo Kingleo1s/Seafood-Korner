@@ -30,6 +30,7 @@ from restaurant.views import (
     add_to_cart,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.contrib.auth import views as auth_views
 
 router = DefaultRouter()
 router.register("categories", CategoryViewSet)
@@ -45,11 +46,21 @@ urlpatterns = [
     path("", home_view, name="home"),
     path("menu/", views.menu_page, name="menu"),
     path("add-to-cart/", add_to_cart, name="add_to_cart"),
+    path("cart/", views.cart_view, name="cart"),
+    path("remove-from-cart/", views.remove_from_cart, name="remove_from_cart"),
+    path("update-cart/", views.update_cart_quantity, name="update_cart_quantity"),
+    path("checkout/", views.checkout_view, name="checkout"),
+
+
 
     # API endpoints
     path("api/", include(router.urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+
+    path("login/", auth_views.LoginView.as_view(template_name="restaurant/login.html"), name="login"),
+    path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="logout"),
+
 ]
 
 if settings.DEBUG:

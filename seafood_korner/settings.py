@@ -143,6 +143,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
+                'restaurant.context_processors.cart_count',
             ],
         },
     },
@@ -170,6 +171,9 @@ LOGGING = {
         },
     },
 }
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+LOGIN_URL = "login"
 
 # ----------------------------------------
 # DEFAULT AUTO FIELD

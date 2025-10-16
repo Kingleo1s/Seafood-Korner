@@ -25,12 +25,8 @@ def home_view(request):
 
 @csrf_exempt
 def menu_page(request):
-    """Displays all menu items and handles AJAX cart additions."""
     items = MenuItem.objects.select_related("category").all()
     return render(request, "restaurant/menu.html", {"items": items})
-
-
-
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -102,7 +98,6 @@ class CartViewSet(viewsets.ViewSet):
 
 @login_required
 def add_to_cart(request):
-
     if request.method == "POST":
         item_id = request.POST.get("item_id")
         menu_item = get_object_or_404(MenuItem, id=item_id)
@@ -119,3 +114,83 @@ def add_to_cart(request):
         })
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@login_required
+def cart_view(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    items = CartItem.objects.filter(cart=cart).select_related("menu_item")
+    total = sum(item.menu_item.price * item.quantity for item in items)
+
+    return render(request, "restaurant/cart.html", {
+        "cart_items": items,
+        "total": total,
+    })
+
+
+@csrf_exempt
+@login_required
+def remove_from_cart(request):
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_item = get_object_or_404(CartItem, cart=cart, menu_item_id=item_id)
+        cart_item.delete()
+        return JsonResponse({"message": "Item removed from cart"})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@csrf_exempt
+@login_required
+def update_cart_quantity(request):
+    """Increase or decrease item quantity via AJAX."""
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        action = request.POST.get("action")  # 'increase' or 'decrease'
+
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_item = get_object_or_404(CartItem, cart=cart, menu_item_id=item_id)
+
+        if action == "increase":
+            cart_item.quantity += 1
+        elif action == "decrease" and cart_item.quantity > 1:
+            cart_item.quantity -= 1
+        cart_item.save()
+
+        total_price = sum(i.menu_item.price * i.quantity for i in CartItem.objects.filter(cart=cart))
+
+        return JsonResponse({
+            "quantity": cart_item.quantity,
+            "item_total": cart_item.menu_item.price * cart_item.quantity,
+            "cart_total": total_price,
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@login_required
+def checkout_view(request):
+    """Simple checkout confirmation page."""
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    items = CartItem.objects.filter(cart=cart)
+
+    if request.method == "POST":
+        if not items:
+            return render(request, "restaurant/checkout.html", {"message": "Your cart is empty!"})
+
+
+        order = Order.objects.create(user=request.user)
+        order.menu_items.set([item.menu_item for item in items])
+        order.save()
+
+
+        items.delete()
+        return render(request, "restaurant/checkout.html", {
+            "message": "✅ Order placed successfully! Thank you for shopping with us."
+        })
+
+    total = sum(item.menu_item.price * item.quantity for item in items)
+    return render(request, "restaurant/checkout.html", {"cart_items": items, "total": total})
+
+
