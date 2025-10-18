@@ -23,4 +23,3 @@ It includes a simple frontend (HTML, CSS, Bootstrap, JavaScript) and a fully fun
 
 ---
 
-## 🗄 ERD (Entity Relationship Diagram)
