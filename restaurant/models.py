@@ -27,7 +27,7 @@ class MenuItem(models.Model):
         ordering = ["name"]
 
     def save(self, *args, **kwargs):
-        """Ensure price is always a valid Decimal before saving"""
+
         try:
             if self.price is None:
                 self.price = Decimal("0.00")

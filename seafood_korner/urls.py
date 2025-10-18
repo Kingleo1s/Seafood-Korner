@@ -43,13 +43,20 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # HTML pages
-    path("", home_view, name="home"),
+    path("", views.home_view, name="home"),
     path("menu/", views.menu_page, name="menu"),
     path("add-to-cart/", add_to_cart, name="add_to_cart"),
     path("cart/", views.cart_view, name="cart"),
     path("remove-from-cart/", views.remove_from_cart, name="remove_from_cart"),
     path("update-cart/", views.update_cart_quantity, name="update_cart_quantity"),
     path("checkout/", views.checkout_view, name="checkout"),
+    path("register/", views.register_view, name="register"),
+
+
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+
+
 
 
 
@@ -58,8 +65,8 @@ urlpatterns = [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    path("login/", auth_views.LoginView.as_view(template_name="restaurant/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(next_page="home"), name="logout"),
+
+
 
 ]
 

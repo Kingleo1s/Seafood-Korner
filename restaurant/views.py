@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import MenuItem
+from .models import MenuItem, OrderItem
 from rest_framework import viewsets, permissions
 from django.contrib.auth.models import User
 from .models import Category, Order
@@ -17,11 +17,18 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.shortcuts import redirect
+from django.contrib.auth import logout
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 def home_view(request):
     items = MenuItem.objects.select_related("category").all()
-    return render(request, "restaurant/index.html", {"items": items})
+    username = request.user.username if request.user.is_authenticated else None
+    return render(request, "restaurant/index.html", {"items": items, "username": username})
+
 
 @csrf_exempt
 def menu_page(request):
@@ -116,16 +123,15 @@ def add_to_cart(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-@login_required
 def cart_view(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    items = CartItem.objects.filter(cart=cart).select_related("menu_item")
-    total = sum(item.menu_item.price * item.quantity for item in items)
-
-    return render(request, "restaurant/cart.html", {
-        "cart_items": items,
-        "total": total,
-    })
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        items = CartItem.objects.filter(cart=cart).select_related("menu_item")
+        total = sum(item.menu_item.price * item.quantity for item in items)
+        return render(request, "restaurant/cart.html", {"cart_items": items, "total": total})
+    else:
+        messages.info(request, "Please login to view your cart.")
+        return redirect("login")
 
 
 @csrf_exempt
@@ -144,7 +150,6 @@ def remove_from_cart(request):
 @csrf_exempt
 @login_required
 def update_cart_quantity(request):
-    """Increase or decrease item quantity via AJAX."""
     if request.method == "POST":
         item_id = request.POST.get("item_id")
         action = request.POST.get("action")  # 'increase' or 'decrease'
@@ -171,26 +176,67 @@ def update_cart_quantity(request):
 
 @login_required
 def checkout_view(request):
-    """Simple checkout confirmation page."""
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-    items = CartItem.objects.filter(cart=cart)
+    cart = Cart.objects.get(user=request.user)
+    cart_items = cart.items.all()
 
+    if not cart_items:
+        messages.warning(request, "Your cart is empty.")
+        return redirect('menu')
+
+    order = Order.objects.create(user=request.user, status="pending")
+
+    for cart_item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            menu_item=cart_item.menu_item,
+            quantity=cart_item.quantity
+        )
+
+    cart.items.all().delete()
+
+    messages.success(request, f"Order #{order.id} placed successfully!")
+    return redirect('home')
+
+
+def register_view(request):
     if request.method == "POST":
-        if not items:
-            return render(request, "restaurant/checkout.html", {"message": "Your cart is empty!"})
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f"Welcome {user.username} to Seafood Korner! 🐟")
+            return redirect("home")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "restaurant/register.html", {"form": form})
 
 
-        order = Order.objects.create(user=request.user)
-        order.menu_items.set([item.menu_item for item in items])
-        order.save()
+def login_view(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {user.username}!")
+                return redirect("home")  # Make sure this matches your home view name
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    return render(request, "restaurant/login.html", {"form": form})
 
+def logout_view(request):
+    logout(request)
+    messages.info(request, "You have been logged out successfully.")
+    return redirect("login")
 
-        items.delete()
-        return render(request, "restaurant/checkout.html", {
-            "message": "✅ Order placed successfully! Thank you for shopping with us."
-        })
-
-    total = sum(item.menu_item.price * item.quantity for item in items)
-    return render(request, "restaurant/checkout.html", {"cart_items": items, "total": total})
 
 

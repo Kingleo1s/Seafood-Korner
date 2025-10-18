@@ -203,3 +203,35 @@ footer {
 .filter-buttons button:hover {
     background: #005f87;
 }
+.auth-container {
+    width: 400px;
+    margin: 60px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.auth-container .btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: teal;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+.auth-container p {
+    text-align: center;
+    margin-top: 15px;
+}
+.cart-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}

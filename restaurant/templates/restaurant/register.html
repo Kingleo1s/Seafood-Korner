@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | Seafood Korner</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b3e5fc);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #0288d1;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        nav a {
+            color: #e0f7fa;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0288d1;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #90caf9;
+            font-size: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            font-size: 18px;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #0288d1;
+        }
+
+        button {
+            background-color: #03a9f4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0288d1;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        p a {
+            color: #0288d1;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #0288d1;
+            color: #e0f7fa;
+            margin-top: 50px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Seafood Korner</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/menu/">Menu</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Create Your Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            {{ form.username.label_tag }}
+            {{ form.username }}
+        </p>
+
+        <div class="password-container">
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            <span id="togglePassword1" class="toggle-password">👁️</span>
+        </div>
+
+        <div class="password-container">
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            <span id="togglePassword2" class="toggle-password">👁️</span>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+</main>
+
+<footer>
+    <p>© 2025 Seafood Korner — Fresh from the Ocean Daily 🐠</p>
+</footer>
+
+<script>
+function setupPasswordToggle(toggleId, inputId) {
+    const toggle = document.getElementById(toggleId);
+    const input = document.getElementById(inputId);
+    if (toggle && input) {
+        toggle.addEventListener('click', () => {
+            const isHidden = input.getAttribute('type') === 'password';
+            input.setAttribute('type', isHidden ? 'text' : 'password');
+            toggle.textContent = isHidden ? '🙈' : '👁️';
+        });
+    }
+}
+
+setupPasswordToggle('togglePassword1', 'id_password1');
+setupPasswordToggle('togglePassword2', 'id_password2');
+</script>
+</body>
+</html>

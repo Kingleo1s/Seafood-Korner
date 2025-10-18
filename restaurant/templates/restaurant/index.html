@@ -8,18 +8,38 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
     <!-- Header -->
     <header>
-        <h1>🐟 Welcome to Seafood Korner 🦐</h1>
-        <nav>
-            <a href="/">Home</a> |
-            <a href="/menu/">Menu</a> |
+<header>
+    <h1>🐟 Welcome to Seafood Korner 🦐</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/menu/">Menu</a> |
+        <a href="/cart/">Cart</a> |
+        <a href="/checkout/">Checkout</a> |
+        <a href="/admin/">Admin</a> |
 
-            <a href="/cart/">Cart</a> |
-            <a href="/login/">Login</a> |
-            <a href="/checkout/">Checkout</a> |
-        </nav>
-    </header>
+        {% if user.is_authenticated %}
+            <span>Welcome, <strong>{{ user.username }}</strong>!</span> |
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+</header>
+
 
     <!-- Hero Section -->
     <section class="hero">
