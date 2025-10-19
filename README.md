@@ -21,5 +21,6 @@ It includes a simple frontend (HTML, CSS, Bootstrap, JavaScript) and a fully fun
   - Image Gallery
 - API pagination, error handling, and ordering
 
----
+django admin username = Kingleo1s
+password = asdfghjkl123
 
